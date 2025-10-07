@@ -448,6 +448,63 @@ def load_house_data():
 
 
 
+#used in 6.Feature_Engineering_and_Polynomial_Regression.ipynb and 5.Feature_scaling_and_Learning_Rate.ipynb
+def zscore_normalize_features(X):
+    """
+    Normalizes features using z-score normalization (mean=0, std=1)
+    
+    Args:
+      X (ndarray (m,n))     : input data, m examples, n features
+      
+    Returns:
+      X_norm (ndarray (m,n)): normalized input data
+      mu (ndarray (n,))     : mean of each feature
+      sigma (ndarray (n,))  : standard deviation of each feature
+    """
+    # find the mean of each column/feature. axis=0 means compute the mean for each feature
+    mu     = np.mean(X, axis=0)                 # mu with shape (n,)
+    # Standard deviation. axis=0 means compute the standard deviation for each feature
+    sigma  = np.std(X, axis=0)                  # sigma with shape (n,)
+    # subtract mean and divide by standard deviation
+    X_norm = (X - mu) / sigma      
+
+    return (X_norm, mu, sigma)
+ 
+
+
+# Used in 6.Feature_Engineering_and_Polynomial_Regression.ipynb
+def run_gradient_descent_feng(X, y, iterations, alpha):
+    """
+    Simplified gradient descent function for feature engineering examples
+    
+    Args:
+      X (ndarray (m,n)): Data, m examples with n features
+      y (ndarray (m,)) : target values
+      iterations (int): number of iterations to run gradient descent
+      alpha (float): Learning rate
+    
+    Returns:
+      w (ndarray (n,)): Final values of parameters
+      b (scalar): Final value of parameter
+    """
+    m, n = X.shape
+    w = np.zeros(n)
+    b = 0.0
+    
+    for i in range(iterations):
+        # Compute cost and gradient
+        cost = compute_cost_multi(X, y, w, b)
+        dj_dw, dj_db = compute_gradient_multi(X, y, w, b)
+        
+        # Update parameters
+        w = w - alpha * dj_dw
+        b = b - alpha * dj_db
+        
+        # Print progress every 100 iterations
+        if i % 100 == 0:
+            print(f"Iteration {i}: Cost {cost:.5e}")
+    
+    return w, b
 
 # Used in 5.Feature_scaling_and_Learning_Rate.ipynb
 def compute_cost_multi(X, y, w, b):
