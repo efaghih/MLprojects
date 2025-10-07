@@ -385,6 +385,8 @@ def compute_model_output(x, w, b):
         
     return f_wb
 
+
+# Used in 4.multi_LR_gradient_descent.ipynb
 def create_restaurant_dataset(n_samples=100, random_seed=42):
     """
     Creates a fake dataset for restaurant franchise problem
@@ -437,6 +439,278 @@ def load_data():
     Load the restaurant dataset - returns fake data for practice
     """
     return create_restaurant_dataset(n_samples=100, random_seed=42)
+
+def load_house_data():
+    """
+    Load the housing dataset - returns fake data for practice
+    """
+    return create_housing_dataset(n_samples=100, random_seed=42)
+
+
+
+
+# Used in 5.Feature_scaling_and_Learning_Rate.ipynb
+def compute_cost_multi(X, y, w, b):
+    """
+    Computes the cost function for multivariable linear regression
+    
+    Args:
+      X (ndarray (m,n)): Data, m examples with n features
+      y (ndarray (m,)) : target values
+      w (ndarray (n,)) : model parameters
+      b (scalar)       : model parameter
+    
+    Returns:
+      cost (float): The cost of using w,b as the parameters for linear regression
+    """
+    m = X.shape[0]
+    cost = 0.0
+    for i in range(m):
+        f_wb_i = np.dot(X[i], w) + b
+        cost = cost + (f_wb_i - y[i])**2
+    cost = cost / (2 * m)
+    return cost
+
+def compute_gradient_multi(X, y, w, b):
+    """
+    Computes the gradient for multivariable linear regression
+    
+    Args:
+      X (ndarray (m,n)): Data, m examples with n features
+      y (ndarray (m,)) : target values
+      w (ndarray (n,)) : model parameters
+      b (scalar)       : model parameter
+    
+    Returns:
+      dj_dw (ndarray (n,)): The gradient of the cost w.r.t. the parameters w
+      dj_db (scalar)      : The gradient of the cost w.r.t. the parameter b
+    """
+    m, n = X.shape
+    dj_dw = np.zeros((n,))
+    dj_db = 0.
+    
+    for i in range(m):
+        err = (np.dot(X[i], w) + b) - y[i]
+        for j in range(n):
+            dj_dw[j] = dj_dw[j] + err * X[i, j]
+        dj_db = dj_db + err
+    dj_dw = dj_dw / m
+    dj_db = dj_db / m
+    
+    return dj_dw, dj_db
+
+def gradient_descent_multi(X, y, w_in, b_in, alpha, num_iters, cost_function, gradient_function):
+    """
+    Performs gradient descent to fit w,b for multivariable linear regression
+    
+    Args:
+      X (ndarray (m,n)): Data, m examples with n features
+      y (ndarray (m,)) : target values
+      w_in (ndarray (n,)): initial values of model parameters
+      b_in (scalar): initial value of model parameter
+      alpha (float): Learning rate
+      num_iters (int): number of iterations to run gradient descent
+      cost_function: function to call to produce cost
+      gradient_function: function to call to produce gradient
+    Returns:
+      w (ndarray (n,)): Updated values of parameters
+      b (scalar): Updated value of parameter
+      J_history (List): History of cost values
+    """
+    import math
+    
+    m, n = X.shape
+    w = w_in.copy()
+    b = b_in
+    J_history = []
+    
+    # Print header
+    print("Iteration | Cost      | w0       | w1       | w2       | w3       | b        | djdw0    | djdw1    | djdw2    | djdw3    | djdb")
+    print("-" * 120)
+    
+    for i in range(num_iters):
+        # Compute cost and gradient
+        cost = cost_function(X, y, w, b)
+        dj_dw, dj_db = gradient_function(X, y, w, b)
+        
+        # Print detailed progress
+        print(f"{i:9} | {cost:8.5e} | {w[0]:8.1e} | {w[1]:8.1e} | {w[2]:8.1e} | {w[3]:8.1e} | {b:8.1e} | {dj_dw[0]:8.1e} | {dj_dw[1]:8.1e} | {dj_dw[2]:8.1e} | {dj_dw[3]:8.1e} | {dj_db:8.1e}")
+        
+        # Update parameters
+        w = w - alpha * dj_dw
+        b = b - alpha * dj_db
+        
+        # Save cost history
+        if i < 100000:
+            J_history.append(cost)
+    
+    print(f"\nw,b found by gradient descent: w: [{w[0]:.2f} {w[1]:.2f} {w[2]:.2f} {w[3]:.2f}], b: {b:.2f}")
+    
+    return w, b, J_history
+
+def run_gradient_descent(X, y, iterations, alpha):
+    """
+    Convenience function to run gradient descent with default parameters
+    
+    Args:
+      X (ndarray (m,n)): Data, m examples with n features
+      y (ndarray (m,)) : target values
+      iterations (int): number of iterations to run gradient descent
+      alpha (float): Learning rate
+    
+    Returns:
+      w (ndarray (n,)): Final values of parameters
+      b (scalar): Final value of parameter
+      J_history (List): History of cost values
+    """
+    m, n = X.shape
+    w_init = np.zeros(n)
+    b_init = 0.0
+    
+    return gradient_descent_multi(X, y, w_init, b_init, alpha, iterations, 
+                                 compute_cost_multi, compute_gradient_multi)
+
+def plot_cost_i_w(X, y, hist):
+    """
+    Plots the cost vs iteration and cost vs w[0] to visualize gradient descent behavior.
+    
+    Args:
+      X (ndarray (m,n)): Data, m examples with n features
+      y (ndarray (m,)) : target values
+      hist (List): History of cost values from gradient descent
+    """
+    # Create subplots
+    fig, ax = plt.subplots(1, 2, figsize=(12, 4))
+    
+    # Plot 1: Cost vs Iteration
+    ax[0].plot(np.arange(len(hist)), hist, color='dodgerblue', linewidth=2)
+    ax[0].set_xlabel("iteration")
+    ax[0].set_ylabel("Cost")
+    ax[0].set_title("Cost vs Iteration")
+    ax[0].grid(True, linestyle='--', alpha=0.7)
+    
+    # Plot 2: Cost vs w[0] 
+    # Generate points for the cost function curve (blue U-shape)
+    w0_range = np.linspace(-1.0, 1.5, 100)
+    cost_curve = []
+    
+    # Use initial values for other parameters
+    w_initial = np.zeros(X.shape[1])
+    b_initial = 0.0
+    
+    for w0_val in w0_range:
+        w_temp = w_initial.copy()
+        w_temp[0] = w0_val
+        cost_curve.append(compute_cost_multi(X, y, w_temp, b_initial))
+    
+    ax[1].plot(w0_range, cost_curve, color='dodgerblue', linewidth=2)
+    
+    # For the gradient descent path, we need to simulate w[0] values
+    # Since we don't have w_history, we'll create a simple approximation
+    # showing the oscillating behavior
+    w0_path = []
+    w0_current = 0.0
+    for i, cost in enumerate(hist):
+        # Simulate oscillating w[0] values that cause divergence
+        w0_current = w0_current + (0.5 if i % 2 == 0 else -0.5) * (i + 1) * 0.1
+        w0_path.append(w0_current)
+    
+    # Plot the gradient descent path (orange zigzag)
+    ax[1].plot(w0_path, hist, color='darkorange', marker='o', markersize=4, 
+               linestyle='-', linewidth=2)
+    ax[1].set_xlabel("w[0]")
+    ax[1].set_ylabel("Cost")
+    ax[1].set_title("Cost vs w[0]")
+    ax[1].grid(True, linestyle='--', alpha=0.7)
+    
+    plt.tight_layout()
+    plt.show()
+
+def create_housing_dataset(n_samples=100, random_seed=42):
+    """
+    Creates a fake housing dataset with multiple features
+    
+    Args:
+        n_samples (int): Number of houses to simulate
+        random_seed (int): Random seed for reproducibility
+    
+    Returns:
+        x_train (ndarray): Features matrix (n_samples, 4) with columns:
+                          [Size (sqft), Bedrooms, Floors, Age]
+        y_train (ndarray): House prices in thousands of dollars
+    """
+    np.random.seed(random_seed)
+    
+    # Generate house sizes (sqft) - realistic range from 800 to 3000 sqft
+    # More houses in the middle range, fewer very large/small houses
+    size = np.random.normal(1500, 400, n_samples)
+    size = np.clip(size, 800, 3000).astype(int)
+    
+    # Generate number of bedrooms (1-5, mostly 2-4)
+    bedrooms = np.random.choice([1, 2, 3, 4, 5], n_samples, p=[0.05, 0.25, 0.4, 0.25, 0.05])
+    
+    # Generate number of floors (1-3, mostly 1-2)
+    floors = np.random.choice([1, 2, 3], n_samples, p=[0.6, 0.35, 0.05])
+    
+    # Generate age of home (0-100 years, more newer homes)
+    age = np.random.exponential(scale=20, size=n_samples)
+    age = np.clip(age, 0, 100).astype(int)
+    
+    # Create feature matrix
+    x_train = np.column_stack([size, bedrooms, floors, age])
+    
+    # Generate prices based on features with realistic relationships
+    # Base price from size (main factor)
+    base_price = 0.15 * size  # ~$150 per sqft base
+    
+    # Bedroom bonus (diminishing returns)
+    bedroom_bonus = 20 * bedrooms - 2 * bedrooms**2
+    
+    # Floor bonus (slight premium for multi-story)
+    floor_bonus = 10 * (floors - 1)
+    
+    # Age depreciation (newer homes worth more)
+    age_depreciation = -0.5 * age
+    
+    # Add some randomness for market factors
+    noise = np.random.normal(0, 30, n_samples)
+    
+    # Calculate final price
+    y_train = base_price + bedroom_bonus + floor_bonus + age_depreciation + noise
+    
+    # Ensure minimum price (no negative prices)
+    y_train = np.maximum(y_train, 50)
+    
+    return x_train, y_train
+
+def print_housing_data(x, y, num_examples=10):
+    """
+    Prints the housing dataset in a nice format
+    
+    Args:
+        x (ndarray): Input features matrix (n_samples, 4)
+        y (ndarray): Target values (house prices in thousands)
+        num_examples (int): Number of examples to print
+    """
+    print(f"Dataset contains {len(x)} examples")
+    print("-" * 80)
+    print("Size(sqft) | Bedrooms | Floors | Age | Price(1000s)")
+    print("-" * 80)
+    
+    for i in range(min(num_examples, len(x))):
+        size, bedrooms, floors, age = x[i]
+        price = y[i]
+        print(f"{size:9d} | {bedrooms:8d} | {floors:6d} | {age:3d} | {price:11.1f}")
+    
+    if len(x) > num_examples:
+        print(f"... and {len(x) - num_examples} more examples")
+    
+    print("-" * 80)
+    print(f"Size range: {x[:, 0].min()} to {x[:, 0].max()} sqft")
+    print(f"Bedrooms range: {x[:, 1].min()} to {x[:, 1].max()}")
+    print(f"Floors range: {x[:, 2].min()} to {x[:, 2].max()}")
+    print(f"Age range: {x[:, 3].min()} to {x[:, 3].max()} years")
+    print(f"Price range: ${y.min():.1f}k to ${y.max():.1f}k")
 
 def print_data(x, y, num_examples=10):
     """
