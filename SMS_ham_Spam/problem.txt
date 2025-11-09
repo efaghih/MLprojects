@@ -1,0 +1,102 @@
+================================================================================
+PROBLEM STATEMENT: SMS SPAM DETECTION
+================================================================================
+
+BUSINESS PROBLEM
+----------------
+Binary classification of SMS messages as spam (unwanted, potentially malicious)
+or ham (legitimate). Spam messages waste user time, consume network resources,
+and may contain phishing attempts or fraud.
+
+
+PRACTICAL OBJECTIVE
+-------------------
+Build a classifier with:
+  • HIGH PRECISION to minimize false positives (legitimate messages blocked)
+  • CALIBRATED PROBABILITIES for reliable confidence scores
+  • ADJUSTABLE THRESHOLD to accommodate different operational requirements
+    (e.g., strict filtering vs. maximum spam detection)
+
+
+CONSTRAINTS
+-----------
+  • SMALL: Model must be deployable with minimal resources
+  • FAST: Inference must be real-time (< 100ms per message)
+  • REPRODUCIBLE: Fixed random seeds, versioned dependencies, documented
+  • PERSONAL COMPUTER: Training and evaluation on standard CPU, no cloud GPU
+
+
+EVALUATION PLAN
+---------------
+Primary Metrics:
+  • F1 SCORE with spam as the positive class (balances precision and recall)
+  • PR-AUC (Precision-Recall Area Under Curve) for imbalanced data performance
+  • ROC-AUC (Receiver Operating Characteristic) for discrimination ability
+
+Threshold Strategy:
+  • TUNE on validation set to meet precision requirements (e.g., 99% precision)
+  • FIX threshold before final test set evaluation
+  • Report performance at multiple operating points
+
+Data Usage:
+  • Training set: Model fitting only
+  • Validation set: Hyperparameter tuning and threshold selection
+  • Test set: Final evaluation only (never touched during development)
+
+
+MODELING APPROACH JUSTIFICATION
+--------------------------------
+
+Classical Linear Models over TF-IDF:
+  • STRONG BASELINE: Proven effective for text classification
+  • FAST TRAINING & INFERENCE: Suitable for personal computer constraint
+  • INTERPRETABLE: Feature weights reveal which words indicate spam
+  • REGULARIZATION: Prevents overfitting on small dataset
+  • MINIMAL PREPROCESSING: TF-IDF handles variable-length text naturally
+
+Modern Transformer (Optional Comparison):
+  • STATE-OF-THE-ART: Captures contextual meaning beyond bag-of-words
+  • TRANSFER LEARNING: Leverages pre-trained language understanding
+  • IDENTICAL SPLITS: Fair comparison using same train/val/test data
+  • ROBUSTNESS: Tests if context understanding improves over word frequencies
+  • PERFORMANCE-RESOURCE TRADE-OFF: Quantifies accuracy gain vs compute cost
+
+Probability Calibration:
+  • RELIABLE CONFIDENCE: Predicted probabilities reflect true likelihood
+  • THRESHOLD FLEXIBILITY: Enables principled decision boundary adjustment
+  • USER TRUST: Calibrated scores are interpretable to non-technical users
+
+Pipeline & Cross-Validation:
+  • PREVENT LEAKAGE: Vectorization inside pipeline, never on full dataset
+  • UNBIASED ESTIMATES: Cross-validation only on training data
+  • REPRODUCIBILITY: Entire workflow captured in reusable pipeline objects
+
+
+EXPECTED OUTCOMES
+-----------------
+  • Quantified performance comparison between classical and modern approaches
+  • Calibrated model ready for deployment with adjustable threshold
+  • Clear understanding of precision-recall trade-offs
+  • Documentation of modeling decisions for future iterations
+
+
+RISKS & LIMITATIONS
+-------------------
+  • Dataset Age: SMS spam tactics evolve; model may degrade over time
+  • Language: Trained on English; may not generalize to other languages
+  • Distribution Shift: Training data may not represent all user populations
+  • Class Imbalance: Only 13% spam; requires careful metric selection
+  • Short Text: Limited context compared to emails or documents
+
+
+SUCCESS CRITERIA
+----------------
+  • Baseline achieves F1 > 0.85 with precision > 0.95
+  • Model trains in < 5 minutes on personal computer
+  • Inference speed < 100ms per message
+  • Test set evaluation shows no significant overfitting (train-test gap < 5%)
+  • Comprehensive documentation enables reproduction by third party
+  • Fair comparison demonstrates value (or lack thereof) of complex models
+
+================================================================================
+

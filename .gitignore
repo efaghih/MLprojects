@@ -1,0 +1,9 @@
+﻿__pycache__/
+ml_env/
+venv/
+SMS_ham_Spam/models/
+baseline/
+distilbert/
+*.pkl
+*.pt
+*.safetensors
