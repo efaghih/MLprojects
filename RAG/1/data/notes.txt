@@ -1,0 +1,16 @@
+Drake Extrusion produces polypropylene (PP) staple fiber and filament.
+In PP staple, spin finish helps with cohesion and processing, but excess moisture can cause odor issues.
+RAG (Retrieval-Augmented Generation) retrieves relevant text chunks and then uses a model to answer questions using that context.
+FAISS is a vector database library used for fast similarity search over embeddings.
+
+Drake Extrusion produces polypropylene (PP) staple fiber and filament.
+In PP staple, spin finish helps with cohesion and processing.
+
+RAG (Retrieval-Augmented Generation) retrieves relevant text chunks and then uses a model to answer questions using that context.
+FAISS is a vector database library used for fast similarity search over embeddings.
+
+Moisture and odor in PP staple handling:
+If PP staple tow is transferred or baled while still wet, trapped moisture can stay inside the bale.
+Trapped moisture can create a “wet laundry” type smell over time, even if the finish includes a biocide, because the damp environment can promote odor formation.
+High moisture can also increase fiber-to-fiber sticking and reduce good separation during bale opening, making opening more difficult.
+Allowing adequate drying time (or reducing water carryover in finish dilution) helps reduce odor complaints and improves opening consistency.

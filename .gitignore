@@ -7,3 +7,6 @@ distilbert/
 *.pkl
 *.pt
 *.safetensors
+# secrets
+.env
+**/.env
